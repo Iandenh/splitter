@@ -5,9 +5,10 @@ import (
 	"net/http"
 	"splitter/listener"
 	"splitter/upstream"
+	"strconv"
 )
 
-func Start() {
+func Start(adminPort int) {
 	e := echo.New()
 
 	e.GET("/", func(c echo.Context) error {
@@ -20,5 +21,5 @@ func Start() {
 		return c.JSON(http.StatusOK, upstream.GetUpstreams())
 	})
 
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(":" + strconv.Itoa(adminPort)))
 }

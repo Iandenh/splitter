@@ -8,6 +8,7 @@ import (
 
 type Config struct {
 	AdminEnabled   bool     `yaml:"adminEnabled"`
+	AdminPort      int      `yaml:"adminPort"`
 	OriginHostName string   `yaml:"originHostName"`
 	RewriteHost    bool     `yaml:"rewriteHost"`
 	Port           int      `yaml:"port"`
@@ -18,6 +19,7 @@ func Load(filePath string) Config {
 	c := Config{
 		AdminEnabled: true,
 		RewriteHost:  false,
+		AdminPort:    8888,
 		Port:         1234,
 	}
 

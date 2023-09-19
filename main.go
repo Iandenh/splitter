@@ -26,7 +26,7 @@ func main() {
 	c := config.Load(configFilePath)
 
 	if c.AdminEnabled {
-		go admin.Start()
+		go admin.Start(c.AdminPort)
 	}
 
 	for _, upstreamUrl := range c.Upstreams {

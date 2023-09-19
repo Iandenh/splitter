@@ -1,3 +1,5 @@
+adminEnabled: true
+adminPort: 8888
 originHostName: google.nl
 rewriteHost: false
 upstreams:
