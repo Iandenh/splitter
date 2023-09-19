@@ -1,0 +1,4 @@
+originHostName: google.nl
+rewriteHost: false
+upstreams:
+  - https://webhook.site/6a44dd83-c3d4-4af6-9189-0ac6a631bb2e
