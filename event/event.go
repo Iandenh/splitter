@@ -15,6 +15,7 @@ type HandleResult struct {
 
 	URL       string                        `url:"method"`
 	Method    string                        `json:"method"`
-	Request   HandleBodyAndHeaders          `json:"request"`
+	Request   *HandleBodyAndHeaders         `json:"request"`
 	Responses map[int]*HandleBodyAndHeaders `json:"responses"`
+	Response  *HandleBodyAndHeaders         `json:"response"`
 }

@@ -24,7 +24,11 @@ const (
 )
 
 func (l *Listener) handleRequest(req *http.Request, resp http.ResponseWriter) {
-	result := newHandleResult(req)
+	defer req.Body.Close()
+
+	bodyInBytes, _ := ioutil.ReadAll(req.Body)
+
+	result := newHandleResult(req, bodyInBytes)
 	RequestHandlingChanged(result)
 
 	upstreams := upstream.GetUpstreams()
@@ -36,7 +40,7 @@ func (l *Listener) handleRequest(req *http.Request, resp http.ResponseWriter) {
 		result.Responses[idx] = e
 		RequestHandlingChanged(result)
 
-		statusCode, _, headers, body := l.proxyRequest(req, u)
+		statusCode, _, headers, body := l.proxyRequest(req, u, bodyInBytes)
 
 		if headers == nil {
 			headers = make(map[string][]string)
@@ -47,6 +51,7 @@ func (l *Listener) handleRequest(req *http.Request, resp http.ResponseWriter) {
 
 		if idx == 0 {
 			bodyBytes, _ = handleResponseCloser(body, resp, statusCode, headers)
+			result.Response = e
 		} else {
 			bodyBytes, _ = retrieveResponseBytes(body)
 		}
@@ -58,12 +63,13 @@ func (l *Listener) handleRequest(req *http.Request, resp http.ResponseWriter) {
 	}
 }
 
-func newHandleResult(req *http.Request) event.HandleResult {
+func newHandleResult(req *http.Request, body []byte) event.HandleResult {
 	return event.HandleResult{
 		ID:     uuid.New().String(),
 		Method: req.Method,
 		URL:    req.URL.String(),
-		Request: event.HandleBodyAndHeaders{
+		Request: &event.HandleBodyAndHeaders{
+			Body:    body,
 			Headers: req.Header,
 		},
 		Responses: make(map[int]*event.HandleBodyAndHeaders),
@@ -126,19 +132,25 @@ func retrieveResponseBytes(readCloser io.ReadCloser) ([]byte, error) {
 	return responseBytes, nil
 }
 
-func (l *Listener) proxyRequest(req *http.Request, u upstream.Upstream) (int, string, map[string][]string, io.ReadCloser) {
-	defer req.Body.Close()
-
-	newURL, _ := url.Parse(u.Url)
+func (l *Listener) proxyRequest(req *http.Request, u upstream.Upstream, body []byte) (int, string, map[string][]string, io.ReadCloser) {
+	newUrl, _ := url.Parse(u.Url)
 
 	concatPath := req.URL.Path
 	if concatPath != "" {
-		newURL.Path = newURL.Path + concatPath
+		newUrl.Path = newUrl.Path + concatPath
 	}
 
-	bodyInBytes, _ := ioutil.ReadAll(req.Body)
+	newQuery := newUrl.Query()
 
-	proxiedReq, _ := http.NewRequest(req.Method, newURL.String(), bytes.NewBuffer(bodyInBytes))
+	for name, values := range req.URL.Query() {
+		for _, value := range values {
+			newQuery.Add(name, value)
+		}
+	}
+
+	newUrl.RawQuery = newQuery.Encode()
+
+	proxiedReq, _ := http.NewRequest(req.Method, newUrl.String(), bytes.NewBuffer(body))
 
 	for name, values := range req.Header {
 		for _, value := range values {

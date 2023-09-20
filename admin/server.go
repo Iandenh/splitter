@@ -10,6 +10,8 @@ import (
 
 func Start(adminPort int) {
 	e := echo.New()
+	e.HidePort = true
+	e.HideBanner = true
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hallo")
