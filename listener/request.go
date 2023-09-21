@@ -3,9 +3,9 @@ package listener
 import (
 	"bytes"
 	"crypto/tls"
+	"fmt"
 	"github.com/google/uuid"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"splitter/event"
@@ -23,42 +23,74 @@ const (
 	maxStoredBodySize = 5 * 1024 * 1024 * 1024 // 5 MBs
 )
 
+type responseResult struct {
+	idx      int
+	e        *event.HandleBodyAndHeaders
+	response response
+}
+
+type response struct {
+	statusCode int
+	url        string
+	headers    map[string][]string
+	body       io.ReadCloser
+}
+
 func (l *Listener) handleRequest(req *http.Request, resp http.ResponseWriter) {
 	defer req.Body.Close()
 
-	bodyInBytes, _ := ioutil.ReadAll(req.Body)
+	bodyInBytes, _ := io.ReadAll(req.Body)
 
 	result := newHandleResult(req, bodyInBytes)
 	RequestHandlingChanged(result)
 
 	upstreams := upstream.GetUpstreams()
 
+	ch := make(chan responseResult)
+	var wg sync.WaitGroup
+
 	for idx, u := range upstreams {
-		e := &event.HandleBodyAndHeaders{
-			Status: "Pending",
-		}
-		result.Responses[idx] = e
-		RequestHandlingChanged(result)
+		wg.Add(1)
 
-		statusCode, _, headers, body := l.proxyRequest(req, u, bodyInBytes)
+		go func(idx int, u upstream.Upstream) {
+			defer wg.Done()
+			e := &event.HandleBodyAndHeaders{
+				Status: "Pending",
+			}
+			result.Responses[idx] = e
 
-		if headers == nil {
-			headers = make(map[string][]string)
-		}
+			fmt.Println("Starting %s", u.Url)
 
-		RequestHandlingChanged(result)
+			res := l.proxyRequest(req, u, bodyInBytes)
+
+			fmt.Println("Done %s", u.Url)
+			ch <- responseResult{
+				idx:      idx,
+				e:        e,
+				response: res,
+			}
+
+		}(idx, u)
+	}
+
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
+
+	for resResult := range ch {
 		var bodyBytes []byte
 
-		if idx == 0 {
-			bodyBytes, _ = handleResponseCloser(body, resp, statusCode, headers)
-			result.Response = e
+		if resResult.idx == 0 {
+			bodyBytes, _ = handleResponseCloser(resResult.response.body, resp, resResult.response.statusCode, resResult.response.headers)
+			result.Response = resResult.e
 		} else {
-			bodyBytes, _ = retrieveResponseBytes(body)
+			bodyBytes, _ = retrieveResponseBytes(resResult.response.body)
 		}
 
-		e.Body = bodyBytes
-		e.Headers = headers
-		e.Status = "finished"
+		resResult.e.Body = bodyBytes
+		resResult.e.Headers = resResult.response.headers
+		resResult.e.Status = "finished"
 		RequestHandlingChanged(result)
 	}
 }
@@ -132,7 +164,7 @@ func retrieveResponseBytes(readCloser io.ReadCloser) ([]byte, error) {
 	return responseBytes, nil
 }
 
-func (l *Listener) proxyRequest(req *http.Request, u upstream.Upstream, body []byte) (int, string, map[string][]string, io.ReadCloser) {
+func (l *Listener) proxyRequest(req *http.Request, u upstream.Upstream, body []byte) response {
 	newUrl, _ := url.Parse(u.Url)
 
 	concatPath := req.URL.Path
@@ -179,7 +211,16 @@ func (l *Listener) proxyRequest(req *http.Request, u upstream.Upstream, body []b
 		}
 	}
 
-	return proxiedResp.StatusCode, proxiedReq.URL.String(), headers, proxiedResp.Body
+	if headers == nil {
+		headers = make(map[string][]string)
+	}
+
+	return response{
+		statusCode: proxiedResp.StatusCode,
+		url:        proxiedReq.URL.String(),
+		headers:    headers,
+		body:       proxiedResp.Body,
+	}
 }
 
 func createHTTPClient() *http.Client {
