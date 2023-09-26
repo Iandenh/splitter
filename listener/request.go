@@ -3,7 +3,6 @@ package listener
 import (
 	"bytes"
 	"crypto/tls"
-	"fmt"
 	"github.com/google/uuid"
 	"io"
 	"net/http"
@@ -52,24 +51,21 @@ func (l *Listener) handleRequest(req *http.Request, resp http.ResponseWriter) {
 	for idx, u := range upstreams {
 		wg.Add(1)
 
+		e := &event.HandleBodyAndHeaders{
+			Status: "Pending",
+		}
+		result.Responses[idx] = e
+
 		go func(idx int, u upstream.Upstream) {
 			defer wg.Done()
-			e := &event.HandleBodyAndHeaders{
-				Status: "Pending",
-			}
-			result.Responses[idx] = e
-
-			fmt.Println("Starting %s", u.Url)
 
 			res := l.proxyRequest(req, u, bodyInBytes)
 
-			fmt.Println("Done %s", u.Url)
 			ch <- responseResult{
 				idx:      idx,
 				e:        e,
 				response: res,
 			}
-
 		}(idx, u)
 	}
 
