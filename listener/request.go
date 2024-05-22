@@ -181,6 +181,10 @@ func (l *Listener) proxyRequest(req *http.Request, u upstream.Upstream, body []b
 	proxiedReq, _ := http.NewRequest(req.Method, newUrl.String(), bytes.NewBuffer(body))
 
 	for name, values := range req.Header {
+		if name == "X-Forwarded-Host" {
+			continue
+		}
+
 		for _, value := range values {
 			proxiedReq.Header.Add(name, value)
 		}
