@@ -7,9 +7,19 @@ import (
 )
 
 type Listener struct {
-	OriginHostName string
-	RewriteHost    bool
-	Port           int
+	originHostName string
+	rewriteHost    bool
+	port           int
+	upstreams      []string
+}
+
+func New(originHostName string, rewriteHost bool, port int, upstreams []string) Listener {
+	return Listener{
+		originHostName: originHostName,
+		rewriteHost:    rewriteHost,
+		port:           port,
+		upstreams:      upstreams,
+	}
 }
 
 func (l *Listener) Start() {
@@ -19,9 +29,9 @@ func (l *Listener) Start() {
 		l.handleRequest(req, w)
 	})
 
-	log.Printf("Starting proxy at: http://localhost:%d\n", l.Port)
+	log.Printf("Starting proxy at: http://localhost:%d\n", l.port)
 
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", l.Port), proxyServer); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", l.port), proxyServer); err != nil {
 		log.Fatal(err)
 	}
 }

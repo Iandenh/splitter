@@ -1,6 +1,6 @@
-adminEnabled: true
-adminPort: 8888
 originHostName: google.nl
 rewriteHost: false
 upstreams:
-  - https://webhook.site/6a44dd83-c3d4-4af6-9189-0ac6a631bb2e
+  - https://webhook.site/d816464d-24ea-496e-ab95-c05c87ab0bf6
+  - https://webhook.site/76f08728-03a3-41c6-bc55-df656cdadf79
+

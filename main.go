@@ -4,10 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"splitter/admin"
 	"splitter/config"
 	"splitter/listener"
-	"splitter/upstream"
 )
 
 var configFilePath string
@@ -25,20 +23,7 @@ func main() {
 
 	c := config.Load(configFilePath)
 
-	if c.AdminEnabled {
-		go admin.Start(c.AdminPort)
-	}
+	l := listener.New(c.OriginHostName, c.RewriteHost, c.Port, c.Upstreams)
 
-	for _, upstreamUrl := range c.Upstreams {
-		upstream.AddUpstream(upstream.Upstream{
-			Url: upstreamUrl,
-		})
-	}
-
-	l := listener.Listener{
-		OriginHostName: c.OriginHostName,
-		RewriteHost:    c.RewriteHost,
-		Port:           c.Port,
-	}
 	l.Start()
 }
