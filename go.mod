@@ -1,4 +1,4 @@
-module splitter
+module github.com/Iandenh/splitter
 
 go 1.23
 

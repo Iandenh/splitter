@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/Iandenh/splitter/config"
+	"github.com/Iandenh/splitter/listener"
 	"os"
-	"splitter/config"
-	"splitter/listener"
 )
 
 var configFilePath string
