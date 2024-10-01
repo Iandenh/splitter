@@ -10,9 +10,20 @@ import (
 )
 
 var (
-	httpClient      *http.Client
-	httpClientMutex sync.Mutex
+	httpClient *http.Client
 )
+
+func init() {
+	httpClient = &http.Client{
+		// Do not auto-follow redirects
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+}
 
 type responseResult struct {
 	idx      int
@@ -55,6 +66,8 @@ func (l *Listener) handleRequest(req *http.Request, resp http.ResponseWriter) {
 	}()
 
 	for resResult := range ch {
+		defer resResult.response.body.Close()
+
 		if resResult.idx == 0 {
 			handleResponseCloser(resResult.response.body, resp, resResult.response.statusCode, resResult.response.headers)
 		}
@@ -108,7 +121,7 @@ func (l *Listener) proxyRequest(req *http.Request, upstream string, body []byte)
 		proxiedReq.Host = l.originHostName
 	}
 
-	proxiedResp, _ := createHTTPClient().Do(proxiedReq)
+	proxiedResp, _ := httpClient.Do(proxiedReq)
 
 	headers := make(map[string][]string)
 
@@ -135,22 +148,4 @@ func (l *Listener) proxyRequest(req *http.Request, upstream string, body []byte)
 		headers:    headers,
 		body:       proxiedResp.Body,
 	}
-}
-
-func createHTTPClient() *http.Client {
-	httpClientMutex.Lock()
-	defer httpClientMutex.Unlock()
-
-	if httpClient == nil {
-		httpClient = &http.Client{
-			// Do not auto-follow redirects
-			CheckRedirect: func(req *http.Request, via []*http.Request) error {
-				return http.ErrUseLastResponse
-			},
-			Transport: &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-			},
-		}
-	}
-	return httpClient
 }
