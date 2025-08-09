@@ -1,16 +1,16 @@
 package config
 
 import (
-	"gopkg.in/yaml.v3"
 	"log"
 	"os"
+	"sigs.k8s.io/yaml"
 )
 
 type Config struct {
-	OriginHostName string   `yaml:"originHostName"`
-	RewriteHost    bool     `yaml:"rewriteHost"`
-	Port           int      `yaml:"port"`
-	Upstreams      []string `yaml:"upstreams"`
+	OriginHostName string   `json:"originHostName"`
+	RewriteHost    bool     `json:"rewriteHost"`
+	Port           int      `json:"port"`
+	Upstreams      []string `json:"upstreams"`
 }
 
 func Load(filePath string) Config {
