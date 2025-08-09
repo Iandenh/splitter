@@ -3,9 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+
 	"github.com/Iandenh/splitter/config"
 	"github.com/Iandenh/splitter/listener"
-	"os"
 )
 
 var configFilePath string
@@ -13,6 +14,7 @@ var configFilePath string
 func init() {
 	flag.StringVar(&configFilePath, "config", "", "Config file to load")
 }
+
 func main() {
 	flag.Parse()
 

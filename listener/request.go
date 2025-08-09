@@ -37,7 +37,7 @@ type response struct {
 	body       io.ReadCloser
 }
 
-func (l *Listener) handleRequest(req *http.Request, resp http.ResponseWriter) {
+func (l *Listener) handleRequest(w http.ResponseWriter, req *http.Request) {
 	defer req.Body.Close()
 
 	bodyInBytes, _ := io.ReadAll(req.Body)
@@ -69,7 +69,7 @@ func (l *Listener) handleRequest(req *http.Request, resp http.ResponseWriter) {
 		defer resResult.response.body.Close()
 
 		if resResult.idx == 0 {
-			handleResponseCloser(resResult.response.body, resp, resResult.response.statusCode, resResult.response.headers)
+			handleResponseCloser(resResult.response.body, w, resResult.response.statusCode, resResult.response.headers)
 		}
 	}
 }

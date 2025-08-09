@@ -23,15 +23,13 @@ func New(originHostName string, rewriteHost bool, port int, upstreams []string) 
 }
 
 func (l *Listener) Start() {
-	proxyServer := http.NewServeMux()
-
-	proxyServer.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		l.handleRequest(req, w)
-	})
-
 	log.Printf("Starting proxy at: http://localhost:%d\n", l.port)
 
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", l.port), proxyServer); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", l.port), l); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func (l *Listener) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	l.handleRequest(w, r)
 }
