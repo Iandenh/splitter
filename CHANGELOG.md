@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/Iandenh/splitter/compare/v1.0.0...v1.0.1) (2026-05-14)
+
+
+### Bug Fixes
+
+* formatting and improve README instructions ([483aa1a](https://github.com/Iandenh/splitter/commit/483aa1af915ea2a7ef5d84cb06a81f034dd6ef83))
+
 ## 1.0.0 (2025-08-18)
 
 
