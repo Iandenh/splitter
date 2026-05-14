@@ -17,7 +17,7 @@ Ensure you have [Go](https://go.dev/doc/install) installed on your system.
 The quickest way to install `splitter` is using the Go toolchain. This will download and compile the binary into your `$GOPATH/bin` directory.
 
 ```bash
-go install https://github.com/Iandenh/splitter@latest
+go install github.com/Iandenh/splitter@latest
 ```
 
 > **Note:** Ensure your `$(go env GOPATH)/bin` directory is added to your system's `$PATH` so you can run the `splitter` command globally from your terminal.
@@ -32,8 +32,8 @@ Use the provided `example-config.yaml` as a starting point. Here is an example o
 # config.yaml
 port: 8080
 upstreams:
-  - "[https://api.target-one.com/webhook](https://api.target-one.com/webhook)"
-  - "[https://api.target-two.com/webhook](https://api.target-two.com/webhook)"
+  - https://api.target-one.com/webhook
+  - https://api.target-two.com/webhook
 ```
 
 ## Usage
@@ -41,7 +41,7 @@ upstreams:
 Start the proxy server by pointing it to your configuration file:
 
 ```bash
-splitter --config=config.yaml
+splitter --config config.yaml
 ```
 
 Once running, any HTTP request sent to the splitter (e.g., `http://localhost:8080`) will be duplicated and proxied to all defined upstreams.
@@ -53,8 +53,8 @@ Once running, any HTTP request sent to the splitter (e.g., `http://localhost:808
 If you prefer to clone the repository and build it manually:
 
 ```bash
-git clone [https://github.com/Iandenh/splitter.git](https://github.com/Iandenh/splitter.git)
+git clone https://github.com/Iandenh/splitter.git
 cd splitter
 go build -o splitter main.go
-./splitter --config=config.yaml
+./splitter --config config.yaml
 ```
