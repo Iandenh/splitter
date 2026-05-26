@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.0.0](https://github.com/Iandenh/splitter/compare/v1.0.1...v2.0.0) (2026-05-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* refactor, to have more commands
+
+### Features
+
+* increase min go to 1.26 ([2673c6f](https://github.com/Iandenh/splitter/commit/2673c6f5b776ad2b705b971ee0325870a5ddc2f5))
+* refactor, to have more commands ([4424c1e](https://github.com/Iandenh/splitter/commit/4424c1e20d8e3735650f1569ce601991349b20d9))
+
+
+### Bug Fixes
+
+* normal error when can't load config file ([182fe78](https://github.com/Iandenh/splitter/commit/182fe78bfe1b6a7064140f910f964a829feadd3f))
+
 ## [1.0.1](https://github.com/Iandenh/splitter/compare/v1.0.0...v1.0.1) (2026-05-14)
 
 
