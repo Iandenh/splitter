@@ -2,8 +2,9 @@ package listener
 
 import (
 	"fmt"
-	"log"
 	"net/http"
+
+	"charm.land/log/v2"
 )
 
 type Listener struct {
@@ -23,7 +24,7 @@ func New(originHostName string, rewriteHost bool, port int, upstreams []string) 
 }
 
 func (l *Listener) Start() {
-	log.Printf("Starting proxy at: http://localhost:%d\n", l.port)
+	log.Infof("Starting proxy at: http://localhost:%d\n", l.port)
 
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", l.port), l); err != nil {
 		log.Fatal(err)

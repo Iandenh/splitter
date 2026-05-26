@@ -1,31 +1,44 @@
 package main
 
 import (
-	"flag"
-	"fmt"
+	_ "embed"
 	"os"
 
-	"github.com/Iandenh/splitter/config"
-	"github.com/Iandenh/splitter/listener"
+	"github.com/Iandenh/splitter/cmd"
+	goversion "github.com/caarlos0/go-version"
 )
 
-var configFilePath string
-
-func init() {
-	flag.StringVar(&configFilePath, "config", "", "Config file to load")
-}
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
 
 func main() {
-	flag.Parse()
+	cmd.Execute(
+		buildVersion(),
+		os.Exit,
+		os.Args[1:],
+	)
+}
 
-	if configFilePath == "" {
-		fmt.Println("No Config loaded")
-		os.Exit(0)
-	}
+//go:embed art.txt
+var asciiArt string
 
-	c := config.Load(configFilePath)
-
-	l := listener.New(c.OriginHostName, c.RewriteHost, c.Port, c.Upstreams)
-
-	l.Start()
+func buildVersion() goversion.Info {
+	return goversion.GetVersionInfo(
+		goversion.WithAppDetails("splitter", "Proxy incoming requests to multiple upstreams.", "https://github.com/iandenh/splitter"),
+		goversion.WithASCIIName(asciiArt),
+		func(i *goversion.Info) {
+			if commit != "" {
+				i.GitCommit = commit
+			}
+			if date != "" {
+				i.BuildDate = date
+			}
+			if version != "" {
+				i.GitVersion = version
+			}
+		},
+	)
 }
