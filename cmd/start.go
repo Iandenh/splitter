@@ -19,16 +19,21 @@ func newStartCmd() *startCmd {
 		Short:         "Start the server",
 		SilenceUsage:  true,
 		SilenceErrors: true,
-		Run: func(cmd *cobra.Command, args []string) {
-			c := config.Load(root.config)
+		RunE: func(cmd *cobra.Command, args []string) error {
+			c, err := config.Load(root.config)
+
+			if err != nil {
+				return err
+			}
 
 			l := listener.New(c.OriginHostName, c.RewriteHost, c.Port, c.Upstreams)
 
 			go l.Start()
 
 			select {
+
 			case <-cmd.Context().Done():
-				return
+				return nil
 			}
 		},
 	}

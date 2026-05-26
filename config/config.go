@@ -1,7 +1,6 @@
 package config
 
 import (
-	"log"
 	"os"
 
 	"sigs.k8s.io/yaml"
@@ -14,24 +13,24 @@ type Config struct {
 	Upstreams      []string `json:"upstreams"`
 }
 
-func Load(filePath string) Config {
+func Load(filePath string) (Config, error) {
 	c := Config{
 		RewriteHost: false,
 		Port:        1234,
 	}
 
 	if filePath == "" {
-		return c
+		return c, nil
 	}
 
 	f, err := os.ReadFile(filePath)
 	if err != nil {
-		log.Fatal(err)
+		return c, err
 	}
 
 	if err := yaml.Unmarshal(f, &c); err != nil {
-		log.Fatal(err)
+		return c, err
 	}
 
-	return c
+	return c, nil
 }
