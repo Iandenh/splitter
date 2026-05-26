@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/Iandenh/splitter/compare/v2.0.0...v2.0.1) (2026-05-26)
+
+
+### Bug Fixes
+
+* use correct golang version ([2d7eb77](https://github.com/Iandenh/splitter/commit/2d7eb779178338885193e52d387aa855ddaeac5b))
+
 ## [2.0.0](https://github.com/Iandenh/splitter/compare/v1.0.1...v2.0.0) (2026-05-26)
 
 
