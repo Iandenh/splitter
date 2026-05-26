@@ -26,10 +26,10 @@ go install github.com/Iandenh/splitter@latest
 
 `splitter` relies on a YAML configuration file to define the upstream targets. 
 
-Use the provided `example-config.yaml` as a starting point. Here is an example of what your `config.yaml` might look like:
+Use the provided `example-config.yaml` as a starting point or use `splitter init`. Here is an example of what your `splitter.yaml` might look like:
 
 ```yaml
-# config.yaml
+# splitter.yaml
 port: 8080
 upstreams:
   - https://api.target-one.com/webhook
@@ -41,7 +41,10 @@ upstreams:
 Start the proxy server by pointing it to your configuration file:
 
 ```bash
-splitter --config config.yaml
+# will automatically look for splitter.yaml
+splitter start
+
+splitter start --config config.yaml
 ```
 
 Once running, any HTTP request sent to the splitter (e.g., `http://localhost:8080`) will be duplicated and proxied to all defined upstreams.
@@ -56,5 +59,5 @@ If you prefer to clone the repository and build it manually:
 git clone https://github.com/Iandenh/splitter.git
 cd splitter
 go build -o splitter main.go
-./splitter --config config.yaml
+./splitter start --config config.yaml
 ```
