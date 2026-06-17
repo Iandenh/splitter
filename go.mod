@@ -3,7 +3,7 @@ module github.com/Iandenh/splitter
 go 1.26
 
 require (
-	charm.land/lipgloss/v2 v2.0.3
+	charm.land/lipgloss/v2 v2.0.4
 	charm.land/log/v2 v2.0.0
 	github.com/caarlos0/go-version v0.2.2
 	github.com/charmbracelet/fang v1.0.0
